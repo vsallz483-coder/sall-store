@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>SALL STORE — Top Up & Voucher</title>
+  <meta name="theme-color" content="#0b1120" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --bg-primary: #0b1120;
+      --bg-secondary: #111d2e;
+      --bg-glass: rgba(255,255,255,0.04);
+      --border-glass: rgba(255,255,255,0.08);
+      --text-primary: #f0f6ff;
+      --text-secondary: #94b0d4;
+      --text-muted: #6a7f9f;
+      --accent-grad: linear-gradient(135deg, #ffffff 0%, #7cb9ff 50%, #4f8cf7 100%);
+      --shadow-soft: 0 8px 32px rgba(0,0,0,0.5);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+      --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+      --success: #34d399;
+      --danger: #f87171;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-image: radial-gradient(ellipse at 20% 50%, rgba(79,140,247,0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 50%, rgba(124,108,240,0.08) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: #7cb9ff; border-radius: 10px; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(24px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes fadeScale {
+      from { opacity:0; transform:scale(0.94); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes toastPop {
+      0%   { opacity:0; transform:translateY(30px) scale(0.92); }
+      60%  { opacity:1; transform:translateY(-4px) scale(1.02); }
+      100% { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes splashLoad {
+      0% { width:0%; }
+      50% { width:65%; }
+      85% { width:90%; }
+      100% { width:100%; }
+    }
+    .fade-in { animation: fadeUp 0.6s var(--ease-smooth) forwards; }
+    .fade-scale { animation: fadeScale 0.5s var(--ease-smooth) forwards; }
+    .delay-1 { animation-delay:0.05s; opacity:0; }
+    .delay-2 { animation-delay:0.10s; opacity:0; }
+    .delay-3 { animation-delay:0.15s; opacity:0; }
+    .delay-4 { animation-delay:0.20s; opacity:0; }
+
+    /* SPLASH */
+    .splash-overlay {
+      position:fixed; inset:0; z-index:9999;
+      background:var(--bg-primary);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-smooth);
+      pointer-events:none;
+    }
+    .splash-overlay.hide { opacity:0; transform:scale(1.06); pointer-events:none; }
+    .splash-overlay .splash-logo {
+      width:80px; height:80px; border-radius:20px;
+      background:var(--bg-secondary); object-fit:cover;
+      box-shadow: 0 8px 40px rgba(79,140,247,0.2);
+      margin-bottom:16px;
+    }
+    .splash-overlay .splash-title {
+      font-size:1.8rem; font-weight:800;
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      letter-spacing:-0.5px; margin-bottom:4px;
+    }
+    .splash-overlay .splash-sub {
+      font-size:0.8rem; color:var(--text-muted);
+      letter-spacing:2px; font-weight:500; opacity:0.6;
+    }
+    .splash-overlay .splash-loader {
+      margin-top:28px; width:200px; max-width:70%; height:4px;
+      background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;
+    }
+    .splash-overlay .splash-loader .bar {
+      height:100%; width:0%;
+      background:var(--accent-grad); border-radius:4px;
+      animation: splashLoad 3s var(--ease-smooth) forwards;
+    }
+
+    /* APP */
+    .app-wrapper {
+      width:100%; max-width:500px; margin:0 auto;
+      animation: fadeScale 0.6s var(--ease-smooth);
+    }
+    .glass {
+      background: var(--bg-glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255,255,255,0.05);
+      transition: background 0.3s, border 0.3s;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex; justify-content:space-between; align-items:center;
+      padding:16px 20px 12px; border-bottom:1px solid var(--border-glass);
+    }
+    .header-brand { display:flex; align-items:center; gap:10px; }
+    .header-brand .logo-img {
+      width:38px; height:38px; border-radius:var(--radius-sm);
+      object-fit:cover; background:var(--bg-secondary);
+      box-shadow: 0 4px 16px rgba(79,140,247,0.3);
+    }
+    .header-brand h1 {
+      font-size:1.4rem; font-weight:800;
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      letter-spacing:-0.5px;
+    }
+    .header-actions { display:flex; align-items:center; gap:8px; }
+    .user-badge {
+      background:rgba(255,255,255,0.06); padding:6px 14px; border-radius:30px;
+      font-size:0.72rem; font-weight:600; color:#7cb9ff;
+      border:1px solid rgba(255,255,255,0.1);
+      display:flex; align-items:center; gap:6px;
+      cursor:pointer; transition: all 0.25s var(--ease-smooth);
+    }
+    .user-badge:hover { background:rgba(255,255,255,0.12); transform:scale(1.02); }
+    .btn-icon {
+      background:transparent; border:none; color:var(--text-secondary);
+      font-size:1.1rem; cursor:pointer; padding:6px;
+      border-radius:50%; transition: all 0.25s var(--ease-smooth);
+      width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    }
+    .btn-icon:hover { background:rgba(255,255,255,0.06); color:#fff; transform:scale(1.08); }
+
+    /* SALDO CARD */
+    .saldo-card {
+      margin:14px 16px 16px; padding:18px 20px;
+      background:linear-gradient(145deg, rgba(255,255,255,0.04), rgba(79,140,247,0.04));
+      border-radius:var(--radius-md);
+      border:1px solid rgba(255,255,255,0.06);
+      position:relative; overflow:hidden;
+      transition: transform 0.3s var(--ease-smooth);
+    }
+    .saldo-card:hover { transform:translateY(-2px); }
+    .saldo-card::after {
+      content:''; position:absolute; top:-50%; right:-30%;
+      width:200px; height:200px;
+      background:radial-gradient(circle, rgba(79,140,247,0.06), transparent 70%);
+      border-radius:50%; pointer-events:none;
+    }
+    .saldo-label {
+      font-size:0.7rem; font-weight:600; text-transform:uppercase;
+      letter-spacing:0.5px; color:var(--text-secondary);
+      display:flex; align-items:center; gap:6px;
+    }
+    .saldo-amount {
+      font-size:2rem; font-weight:800; color:#fff;
+      margin:2px 0 8px; letter-spacing:-0.5px;
+    }
+    .saldo-amount span {
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .saldo-bar {
+      width:100%; height:4px; background:rgba(255,255,255,0.06);
+      border-radius:8px; overflow:hidden; margin-bottom:10px;
+    }
+    .saldo-bar .fill {
+      height:100%; width:0%;
+      background:var(--accent-grad);
+      border-radius:8px;
+      transition: width 0.8s var(--ease-smooth);
+    }
+    .saldo-actions { display:flex; gap:8px; }
+    .saldo-actions button {
+      flex:1; padding:8px 12px; border:none; border-radius:var(--radius-sm);
+      font-weight:700; font-size:0.8rem; cursor:pointer;
+      transition: all 0.25s var(--ease-smooth);
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-family:inherit;
+    }
+    .btn-topup {
+      background:var(--accent-grad); color:#0b1120;
+      box-shadow:0 4px 16px rgba(79,140,247,0.2);
+    }
+    .btn-topup:hover { transform:translateY(-2px) scale(1.01); box-shadow:0 8px 28px rgba(79,140,247,0.3); }
+    .btn-history {
+      background:rgba(255,255,255,0.05); color:var(--text-secondary);
+      border:1px solid var(--border-glass);
+    }
+    .btn-history:hover { background:rgba(255,255,255,0.08); color:#fff; transform:translateY(-2px); }
+
+    /* STATS ROW */
+    .stats-row {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
+      padding:0 16px 14px;
+    }
+    .stat-item {
+      background:var(--bg-glass); border:1px solid var(--border-glass);
+      border-radius:var(--radius-sm); padding:10px 8px;
+      text-align:center; transition: all 0.3s var(--ease-smooth);
+    }
+    .stat-item:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.15); }
+    .stat-item .num { font-size:1.1rem; font-weight:800; color:var(--text-primary); }
+    .stat-item .lbl { font-size:0.6rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.3px; margin-top:2px; }
+    .stat-item .num.green { color:var(--success); }
+    .stat-item .num.orange { color:#fbbf24; }
+    .stat-item .num.blue {
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+
+    .points-badge {
+      background:rgba(255,215,0,0.15);
+      border:1px solid rgba(255,215,0,0.2);
+      color:#fbbf24;
+      padding:2px 12px;
+      border-radius:30px;
+      font-size:0.65rem;
+      font-weight:700;
+    }
+    .coupon-badge {
+      display:inline-block;
+      background:var(--accent-grad);
+      color:#0b1120;
+      font-weight:700;
+      padding:2px 12px;
+      border-radius:30px;
+      font-size:0.65rem;
+    }
+
+    /* NAV TABS */
+    .nav-tabs {
+      display:flex; gap:4px; padding:0 14px 12px;
+      overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none;
+    }
+    .nav-tabs::-webkit-scrollbar { display:none; }
+    .nav-tab {
+      flex-shrink:0; padding:8px 14px; background:transparent; border:none;
+      border-radius:30px; color:var(--text-muted); font-weight:600; font-size:0.75rem;
+      cursor:pointer; transition: all 0.3s var(--ease-smooth);
+      white-space:nowrap; font-family:inherit;
+    }
+    .nav-tab:hover { color:var(--text-secondary); background:rgba(255,255,255,0.04); transform:scale(1.02); }
+    .nav-tab.active {
+      background:var(--accent-grad); color:#0b1120;
+      box-shadow:0 4px 16px rgba(79,140,247,0.2);
+      transform:scale(1.02);
+    }
+    .nav-tab i { margin-right:5px; }
+
+    /* TAB CONTENT */
+    .tab-content { display:none; padding:0 14px 16px; animation: fadeUp 0.4s var(--ease-smooth); }
+    .tab-content.active { display:block; }
+
+    /* SUB TABS */
+    .sub-tabs {
+      display:flex; gap:4px; margin-bottom:14px;
+      overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none;
+    }
+    .sub-tabs::-webkit-scrollbar { display:none; }
+    .sub-tab {
+      flex-shrink:0; padding:6px 14px;
+      background:rgba(255,255,255,0.04); border:1px solid var(--border-glass);
+      border-radius:30px; color:var(--text-muted); font-weight:600; font-size:0.7rem;
+      cursor:pointer; transition: all 0.3s var(--ease-smooth);
+      white-space:nowrap; font-family:inherit;
+    }
+    .sub-tab:hover { color:var(--text-secondary); background:rgba(255,255,255,0.06); transform:scale(1.02); }
+    .sub-tab.active {
+      background:var(--accent-grad); color:#0b1120; border-color:transparent;
+      box-shadow:0 4px 12px rgba(79,140,247,0.15);
+      transform:scale(1.02);
+    }
+    .sub-tab i { margin-right:4px; }
+    .sub-content { display:none; animation: fadeUp 0.35s var(--ease-smooth); }
+    .sub-content.active { display:block; }
+
+    /* FORM */
+    .form-group { margin-bottom:14px; }
+    .form-group label {
+      display:block; font-size:0.75rem; font-weight:600;
+      color:var(--text-secondary); margin-bottom:5px; letter-spacing:0.3px;
+    }
+    .form-group label i {
+      margin-right:5px;
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width:100%; padding:10px 14px;
+      background:rgba(0,0,0,0.25); border:1px solid var(--border-glass);
+      border-radius:var(--radius-sm); color:var(--text-primary);
+      font-size:0.9rem; font-family:inherit; outline:none;
+      transition: border 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth);
+      resize:vertical;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color:#7cb9ff;
+      box-shadow:0 0 0 3px rgba(79,140,247,0.12);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color:var(--text-muted); }
+    .form-group select option { background:var(--bg-secondary); }
+    .error-text { color:var(--danger); font-size:0.7rem; margin-top:3px; display:none; }
+
+    /* PRICE GRID */
+    .price-grid {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:6px;
+    }
+    .price-tag {
+      padding:8px 4px; background:rgba(255,255,255,0.03);
+      border:1px solid var(--border-glass); border-radius:var(--radius-sm);
+      text-align:center; font-size:0.75rem; font-weight:600;
+      color:var(--text-secondary); cursor:pointer;
+      transition: all 0.25s var(--ease-smooth);
+      user-select:none;
+    }
+    .price-tag:hover { border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.06); transform:scale(1.02); }
+    .price-tag.active {
+      border-color:#7cb9ff; background:rgba(79,140,247,0.12);
+      color:#fff; box-shadow:0 0 20px rgba(79,140,247,0.08);
+      transform:scale(1.04);
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      width:100%; padding:12px; background:var(--accent-grad);
+      border:none; border-radius:var(--radius-sm); color:#0b1120;
+      font-weight:700; font-size:0.95rem; cursor:pointer;
+      transition: all 0.3s var(--ease-smooth);
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      font-family:inherit; position:relative; overflow:hidden;
+    }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px) scale(1.01); box-shadow:0 8px 28px rgba(79,140,247,0.25); }
+    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+    .btn-primary .spinner {
+      display:none; width:18px; height:18px;
+      border:2px solid rgba(0,0,0,0.1); border-top-color:#0b1120;
+      border-radius:50%; animation:spin 0.8s linear infinite;
+    }
+    .btn-primary .loading-text {
+      display:none; font-weight:600; font-size:0.95rem;
+    }
+    .btn-primary.loading .btn-text { display:none; }
+    .btn-primary.loading .spinner { display:inline-block; }
+    .btn-primary.loading .loading-text { display:inline-block; }
+
+    /* HISTORY */
+    .filter-bar {
+      display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;
+    }
+    .filter-bar input, .filter-bar select {
+      flex:1; min-width:60px; padding:6px 12px;
+      background:rgba(0,0,0,0.25); border:1px solid var(--border-glass);
+      border-radius:var(--radius-sm); color:var(--text-primary);
+      font-size:0.75rem; font-family:inherit; outline:none;
+      transition: border 0.25s var(--ease-smooth);
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color:#7cb9ff; }
+    .filter-bar .btn-filter {
+      padding:6px 12px; background:rgba(255,255,255,0.04);
+      border:1px solid var(--border-glass); border-radius:var(--radius-sm);
+      color:var(--text-secondary); cursor:pointer; font-weight:600; font-size:0.75rem;
+      transition: all 0.25s var(--ease-smooth); font-family:inherit;
+    }
+    .filter-bar .btn-filter:hover { background:rgba(255,255,255,0.07); color:#fff; transform:scale(1.04); }
+    .filter-bar .btn-filter.danger { color:var(--danger); border-color:rgba(248,113,113,0.15); }
+    .filter-bar .btn-filter.danger:hover { background:rgba(248,113,113,0.08); }
+
+    .history-list {
+      max-height:340px; overflow-y:auto; padding-right:4px;
+    }
+    .history-list::-webkit-scrollbar { width:4px; }
+    .history-list::-webkit-scrollbar-thumb { background:#7cb9ff; border-radius:8px; }
+
+    .history-item {
+      background:rgba(255,255,255,0.02); border:1px solid var(--border-glass);
+      border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:8px;
+      cursor:pointer; transition: all 0.25s var(--ease-smooth);
+      border-left:3px solid #7cb9ff;
+    }
+    .history-item:hover { background:rgba(255,255,255,0.04); transform:translateX(4px); }
+    .history-item .hdr { display:flex; justify-content:space-between; align-items:center; }
+    .history-item .hdr strong { font-size:0.9rem; }
+    .history-item .hdr .badge-status {
+      font-size:0.6rem; font-weight:700; padding:2px 10px; border-radius:30px;
+      background:rgba(16,185,129,0.12); color:var(--success);
+      border:1px solid rgba(16,185,129,0.15);
+    }
+    .history-item .meta {
+      font-size:0.7rem; color:var(--text-muted); margin-top:4px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .history-item .meta span { display:flex; align-items:center; gap:3px; }
+    .empty-state { text-align:center; padding:30px 0; color:var(--text-muted); }
+    .empty-state i { font-size:2.2rem; display:block; margin-bottom:10px; opacity:0.4; }
+
+    /* MODALS */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.7); backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px); z-index:2000;
+      align-items:center; justify-content:center; padding:20px;
+      animation: fadeScale 0.3s var(--ease-smooth);
+    }
+    .modal-overlay.show { display:flex; }
+    .modal-box {
+      background:var(--bg-secondary); border:1px solid var(--border-glass);
+      border-radius:var(--radius-lg); padding:24px 20px;
+      max-width:400px; width:100%;
+      animation: fadeScale 0.35s var(--ease-smooth);
+      box-shadow:var(--shadow-soft); max-height:90vh; overflow-y:auto;
+    }
+    .modal-box h2 {
+      font-size:1.3rem; font-weight:800; text-align:center; margin-bottom:4px;
+      background:var(--accent-grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .modal-box .sub { text-align:center; color:var(--text-secondary); font-size:0.8rem; margin-bottom:16px; }
+    .modal-box .qris-placeholder {
+      background:rgba(255,255,255,0.05); border-radius:var(--radius-sm);
+      padding:16px; margin:8px 0 14px; text-align:center;
+      display:flex; justify-content:center;
+    }
+    .modal-box .qris-placeholder #qrcode {
+      background:#fff;
+      padding:12px;
+      border-radius:12px;
+      display:inline-block;
+    }
+    .modal-actions { display:flex; gap:10px; margin-top:14px; }
+    .modal-actions button {
+      flex:1; padding:10px; border:none; border-radius:var(--radius-sm);
+      font-weight:700; font-size:0.85rem; cursor:pointer;
+      transition: all 0.25s var(--ease-smooth); font-family:inherit;
+    }
+    .modal-actions .btn-cancel {
+      background:rgba(255,255,255,0.05); color:var(--text-secondary);
+      border:1px solid var(--border-glass);
+    }
+    .modal-actions .btn-cancel:hover { background:rgba(255,255,255,0.08); transform:scale(1.02); }
+    .modal-actions .btn-confirm {
+      background:var(--accent-grad); color:#0b1120;
+      box-shadow:0 4px 16px rgba(79,140,247,0.15); position:relative;
+    }
+    .modal-actions .btn-confirm:hover { transform:translateY(-2px) scale(1.01); box-shadow:0 8px 28px rgba(79,140,247,0.25); }
+    .modal-actions .btn-confirm .spinner {
+      display:none; width:16px; height:16px;
+      border:2px solid rgba(0,0,0,0.1); border-top-color:#0b1120;
+      border-radius:50%; animation:spin 0.8s linear infinite;
+    }
+    .modal-actions .btn-confirm.loading .btn-text { visibility:hidden; }
+    .modal-actions .btn-confirm.loading .spinner {
+      display:block; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    }
+
+    /* KONFIRMASI CUSTOM */
+    #modalConfirm .modal-box .confirm-details {
+      background:rgba(255,255,255,0.04);
+      border-radius:var(--radius-sm);
+      padding:14px;
+      margin:8px 0 14px;
+      font-size:0.9rem;
+      line-height:1.6;
+    }
+    #modalConfirm .modal-box .confirm-details .label {
+      color:var(--text-muted);
+      font-size:0.7rem;
+      text-transform:uppercase;
+      letter-spacing:0.3px;
+    }
+    #modalConfirm .modal-box .confirm-details .value {
+      font-weight:700;
+      color:#fff;
+    }
+    #modalConfirm .modal-box .confirm-details .divider {
+      border-top:1px solid var(--border-glass);
+      margin:6px 0;
+    }
+
+    /* RECEIPT */
+    .receipt {
+      background:#fff; color:#0b1120; border-radius:var(--radius-md);
+      padding:20px 18px; font-family:'Courier New', monospace;
+      max-width:360px; width:100%;
+    }
+    .receipt h2 { text-align:center; font-size:1.1rem; font-weight:800; letter-spacing:2px; margin-bottom:12px; color:#0b1120; }
+    .receipt .row { display:flex; justify-content:space-between; font-size:0.8rem; padding:3px 0; }
+    .receipt .divider { border-top:1px dashed #ccc; margin:10px 0; }
+    .receipt .status { text-align:center; font-weight:700; color:var(--success); margin-top:10px; font-size:0.9rem; }
+    .receipt .actions { display:flex; gap:8px; margin-top:14px; }
+    .receipt .actions button {
+      flex:1; padding:8px 10px; border:none; border-radius:var(--radius-sm);
+      font-weight:700; font-size:0.7rem; cursor:pointer;
+      transition: all 0.2s var(--ease-smooth); font-family:inherit;
+    }
+    .receipt .actions .btn-wa { background:#25d366; color:#fff; }
+    .receipt .actions .btn-wa:hover { transform:scale(1.04); }
+    .receipt .actions .btn-download { background:var(--accent-grad); color:#0b1120; }
+    .receipt .actions .btn-download:hover { transform:scale(1.04); }
+    .receipt .actions .btn-close { background:#e2e8f0; color:#1a202c; }
+    .receipt .actions .btn-close:hover { transform:scale(1.04); }
+
+    /* TOAST */
+    .toast-container {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      z-index:3000; pointer-events:none; width:90%; max-width:420px;
+    }
+    .toast {
+      background:var(--bg-secondary); border:1px solid var(--border-glass);
+      border-radius:40px; padding:10px 20px; color:var(--text-primary);
+      font-weight:600; font-size:0.85rem; box-shadow:var(--shadow-soft);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+      opacity:0; transform:translateY(30px) scale(0.92);
+      transition: all 0.4s var(--ease-smooth);
+      pointer-events:auto; display:flex; align-items:center; gap:10px;
+      margin:0 auto;
+    }
+    .toast.show {
+      opacity:1; transform:translateY(0) scale(1);
+      animation: toastPop 0.5s var(--ease-smooth);
+    }
+    .toast.success { border-color:rgba(16,185,129,0.3); }
+    .toast.error { border-color:rgba(248,113,113,0.3); }
+    .toast i { font-size:1rem; }
+    .toast.success i { color:var(--success); }
+    .toast.error i { color:var(--danger); }
+
+    /* FOOTER */
+    .footer {
+      text-align:center; padding:12px 16px 8px; border-top:1px solid var(--border-glass);
+      color:var(--text-muted); font-size:0.65rem; letter-spacing:0.3px;
+    }
+    canvas#receiptCanvas { display:none; }
+
+    @media (max-width:480px) {
+      body { padding:8px; }
+      .header { padding:12px 14px 10px; }
+      .header-brand h1 { font-size:1.1rem; }
+      .header-brand .logo-img { width:32px; height:32px; }
+      .saldo-card { margin:10px 12px 12px; padding:14px 16px; }
+      .saldo-amount { font-size:1.6rem; }
+      .stats-row { padding:0 12px 10px; gap:6px; }
+      .stat-item .num { font-size:0.95rem; }
+      .nav-tabs { padding:0 10px 10px; }
+      .nav-tab { font-size:0.68rem; padding:6px 12px; }
+      .tab-content { padding:0 10px 12px; }
+      .sub-tabs { gap:3px; margin-bottom:10px; }
+      .sub-tab { font-size:0.62rem; padding:5px 10px; }
+      .price-grid { grid-template-columns:repeat(3,1fr); gap:4px; }
+      .price-tag { font-size:0.65rem; padding:6px 3px; }
+      .modal-box { padding:16px 14px; max-width:100%; margin:10px; }
+      .receipt { padding:16px 14px; max-width:100%; margin:10px; }
+      .receipt .actions button { font-size:0.6rem; padding:6px 8px; }
+      .form-group input, .form-group select, .form-group textarea { font-size:0.85rem; padding:8px 12px; }
+      .btn-primary { font-size:0.85rem; padding:10px; }
+      .saldo-actions button { font-size:0.7rem; padding:6px 10px; }
+      .history-item { padding:10px 12px; }
+      .history-item .hdr strong { font-size:0.8rem; }
+      .toast { font-size:0.75rem; padding:8px 16px; }
+      .splash-overlay .splash-title { font-size:1.4rem; }
+      .splash-overlay .splash-logo { width:64px; height:64px; }
+      .splash-overlay .splash-loader { width:160px; }
+      .modal-box .qris-placeholder #qrcode { transform:scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="splash-overlay" id="splashOverlay">
+  <img class="splash-logo" src="https://i.imgur.com/9ebJt3w.jpeg" alt="VSALL" />
+  <div class="splash-title">Welcome to Sall Store</div>
+  <div class="splash-sub">TOP UP & VOUCHER DIGITAL</div>
+  <div class="splash-loader"><div class="bar"></div></div>
+</div>
+
+<!-- APP -->
+<div class="app-wrapper" id="app" style="opacity:0;transition:opacity 0.6s var(--ease-smooth);">
+
+  <!-- HEADER -->
+  <header class="glass header fade-in">
+    <div class="header-brand">
+      <img class="logo-img" src="https://i.imgur.com/9ebJt3w.jpeg" alt="Logo VSALL" />
+      <h1>SALL STORE</h1>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge" id="userBadge" onclick="toggleUserMenu()">
+        <i class="fas fa-user-circle"></i>
+        <span id="usernameDisplay">Guest</span>
+        <i class="fas fa-chevron-down" style="font-size:0.55rem;margin-left:3px;"></i>
+      </div>
+      <button class="btn-icon" id="logoutBtn" style="display:none;" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SALDO CARD -->
+  <section class="saldo-card fade-in delay-1">
+    <div class="saldo-label"><i class="fas fa-wallet"></i> Saldo Anda</div>
+    <div class="saldo-amount">Rp <span id="saldoDisplay">1.000.000</span></div>
+    <div class="saldo-bar"><div class="fill" id="saldoFill"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span class="points-badge"><i class="fas fa-star"></i> Poin: <span id="pointsDisplay">0</span></span>
+      <span class="coupon-badge"><i class="fas fa-ticket"></i> Kupon: <span id="couponCount">0</span></span>
+    </div>
+    <div class="saldo-actions">
+      <button class="btn-topup" id="openTopupSaldo"><i class="fas fa-plus-circle"></i> Top Up</button>
+      <button class="btn-history" id="openHistoryTab"><i class="fas fa-clock-rotate-left"></i> Riwayat</button>
+    </div>
+  </section>
+
+  <!-- STATS ROW -->
+  <div class="stats-row fade-in delay-2">
+    <div class="stat-item"><div class="num blue" id="statTotal">0</div><div class="lbl">Transaksi</div></div>
+    <div class="stat-item"><div class="num orange" id="statSpent">Rp 0</div><div class="lbl">Total Belanja</div></div>
+    <div class="stat-item"><div class="num green" id="statAvg">Rp 0</div><div class="lbl">Rata-rata</div></div>
+  </div>
+
+  <!-- NAV TABS -->
+  <nav class="nav-tabs fade-in delay-3">
+    <button class="nav-tab active" data-tab="topup"><i class="fas fa-cart-plus"></i> Top Up</button>
+    <button class="nav-tab" data-tab="transfer"><i class="fas fa-exchange-alt"></i> Transfer</button>
+    <button class="nav-tab" data-tab="history"><i class="fas fa-list-ul"></i> Riwayat</button>
+    <button class="nav-tab" data-tab="stats"><i class="fas fa-chart-simple"></i> Statistik</button>
+    <button class="nav-tab" data-tab="coupon"><i class="fas fa-ticket"></i> Kupon</button>
+  </nav>
+
+  <!-- TAB TOPUP -->
+  <div class="tab-content active" id="tab-topup">
+    <div class="sub-tabs fade-in delay-4">
+      <button class="sub-tab active" data-sub="game"><i class="fas fa-gamepad"></i> Game</button>
+      <button class="sub-tab" data-sub="pulsa"><i class="fas fa-phone"></i> Pulsa</button>
+      <button class="sub-tab" data-sub="data"><i class="fas fa-wifi"></i> Data</button>
+      <button class="sub-tab" data-sub="ewallet"><i class="fas fa-wallet"></i> E-Wallet</button>
+      <button class="sub-tab" data-sub="pln"><i class="fas fa-bolt"></i> PLN</button>
+      <button class="sub-tab" data-sub="voucher"><i class="fas fa-ticket"></i> Voucher</button>
+    </div>
+
+    <!-- GAME -->
+    <div class="sub-content active" id="sub-game">
+      <div class="form-group">
+        <label><i class="fas fa-gamepad"></i> Pilih Game</label>
+        <select id="gameSelect">
+          <option value="">-- Pilih --</option>
+          <optgroup label="Mobile Legends"><option value="Mobile Legends">Mobile Legends</option></optgroup>
+          <optgroup label="Shooter"><option value="Free Fire">Free Fire</option><option value="PUBG Mobile">PUBG Mobile</option><option value="Call of Duty Mobile">Call of Duty Mobile</option></optgroup>
+          <optgroup label="RPG"><option value="Genshin Impact">Genshin Impact</option><option value="Honkai Star Rail">Honkai Star Rail</option></optgroup>
+          <optgroup label="MOBA"><option value="Arena of Valor">Arena of Valor</option><option value="League of Legends: Wild Rift">League of Legends: Wild Rift</option></optgroup>
+          <optgroup label="Strategy"><option value="Clash of Clans">Clash of Clans</option><option value="Clash Royale">Clash Royale</option></optgroup>
+          <optgroup label="Voucher"><option value="Google Play">Google Play</option><option value="Netflix">Netflix</option><option value="Spotify">Spotify</option></optgroup>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-id-card"></i> User ID</label>
+        <input type="text" id="userIdGame" placeholder="Masukkan User ID" list="historyGameList">
+        <datalist id="historyGameList"></datalist>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-coins"></i> Nominal</label>
+        <div class="price-grid" data-target="amountGame">
+          <div class="price-tag" data-value="10000">Rp 10K</div>
+          <div class="price-tag" data-value="20000">Rp 20K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="200000">Rp 200K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+          <div class="price-tag" data-value="1000000">Rp 1JT</div>
+          <div class="price-tag" data-value="2000000">Rp 2JT</div>
+          <div class="price-tag" data-value="3000000">Rp 3JT</div>
+        </div>
+        <input type="number" id="amountGame" placeholder="Nominal manual" min="10000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponGame" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('game')">
+        <span class="btn-text"><i class="fas fa-rocket"></i> Top Up Sekarang</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+
+    <!-- PULSA -->
+    <div class="sub-content" id="sub-pulsa">
+      <div class="form-group">
+        <label><i class="fas fa-sim-card"></i> Operator</label>
+        <select id="operatorPulsa">
+          <option value="">-- Pilih --</option>
+          <option value="Telkomsel">Telkomsel</option>
+          <option value="XL">XL</option>
+          <option value="Indosat">Indosat</option>
+          <option value="Tri">Tri</option>
+          <option value="Smartfren">Smartfren</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-phone"></i> Nomor HP</label>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="userIdPulsa" placeholder="08xxxxxxxxxx">
+        <div class="error-text" id="errorPulsa">Format nomor tidak valid</div>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-coins"></i> Nominal</label>
+        <div class="price-grid" data-target="amountPulsa">
+          <div class="price-tag" data-value="5000">Rp 5K</div>
+          <div class="price-tag" data-value="10000">Rp 10K</div>
+          <div class="price-tag" data-value="20000">Rp 20K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="200000">Rp 200K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+          <div class="price-tag" data-value="1000000">Rp 1JT</div>
+        </div>
+        <input type="number" id="amountPulsa" placeholder="Nominal manual" min="5000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponPulsa" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('pulsa')">
+        <span class="btn-text"><i class="fas fa-bolt"></i> Beli Pulsa</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+
+    <!-- DATA -->
+    <div class="sub-content" id="sub-data">
+      <div class="form-group">
+        <label><i class="fas fa-sim-card"></i> Operator</label>
+        <select id="operatorData">
+          <option value="">-- Pilih --</option>
+          <option value="Telkomsel">Telkomsel</option>
+          <option value="XL">XL</option>
+          <option value="Indosat">Indosat</option>
+          <option value="Tri">Tri</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-phone"></i> Nomor HP</label>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="userIdData" placeholder="08xxxxxxxxxx">
+        <div class="error-text" id="errorData">Format nomor tidak valid</div>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-wifi"></i> Paket Data</label>
+        <div class="price-grid" data-target="amountData">
+          <div class="price-tag" data-value="20000">1GB 7H</div>
+          <div class="price-tag" data-value="35000">3GB 30H</div>
+          <div class="price-tag" data-value="50000">5GB 30H</div>
+          <div class="price-tag" data-value="75000">10GB 30H</div>
+          <div class="price-tag" data-value="100000">15GB 30H</div>
+          <div class="price-tag" data-value="150000">25GB 30H</div>
+        </div>
+        <input type="number" id="amountData" placeholder="Nominal manual" min="10000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponData" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('data')">
+        <span class="btn-text"><i class="fas fa-wifi"></i> Beli Paket Data</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+
+    <!-- E-WALLET -->
+    <div class="sub-content" id="sub-ewallet">
+      <div class="form-group">
+        <label><i class="fas fa-wallet"></i> E-Wallet</label>
+        <select id="operatorEwallet">
+          <option value="">-- Pilih --</option>
+          <option value="DANA">DANA</option>
+          <option value="OVO">OVO</option>
+          <option value="GOPAY">GOPAY</option>
+          <option value="ShopeePay">ShopeePay</option>
+          <option value="LinkAja">LinkAja</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-phone"></i> Nomor HP</label>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="userIdEwallet" placeholder="08xxxxxxxxxx">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-coins"></i> Nominal</label>
+        <div class="price-grid" data-target="amountEwallet">
+          <div class="price-tag" data-value="20000">Rp 20K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="200000">Rp 200K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+          <div class="price-tag" data-value="1000000">Rp 1JT</div>
+        </div>
+        <input type="number" id="amountEwallet" placeholder="Nominal manual" min="10000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponEwallet" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('ewallet')">
+        <span class="btn-text"><i class="fas fa-wallet"></i> Top Up E-Wallet</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+
+    <!-- PLN -->
+    <div class="sub-content" id="sub-pln">
+      <div class="form-group">
+        <label><i class="fas fa-bolt"></i> No. Meter / ID Pelanggan</label>
+        <input type="text" id="userIdPln" placeholder="Masukkan No. Meter">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-coins"></i> Nominal</label>
+        <div class="price-grid" data-target="amountPln">
+          <div class="price-tag" data-value="20000">Rp 20K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="200000">Rp 200K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+        </div>
+        <input type="number" id="amountPln" placeholder="Nominal manual" min="20000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponPln" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('pln')">
+        <span class="btn-text"><i class="fas fa-bolt"></i> Beli Token PLN</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+
+    <!-- VOUCHER -->
+    <div class="sub-content" id="sub-voucher">
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Pilih Voucher</label>
+        <select id="voucherSelect">
+          <option value="">-- Pilih --</option>
+          <option value="Google Play">Google Play</option>
+          <option value="Apple App Store">Apple App Store</option>
+          <option value="Netflix">Netflix</option>
+          <option value="Spotify">Spotify</option>
+          <option value="YouTube Premium">YouTube Premium</option>
+          <option value="Disney+">Disney+</option>
+          <option value="Vidio">Vidio</option>
+          <option value="Steam Wallet">Steam Wallet</option>
+          <option value="Epic Games">Epic Games</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-envelope"></i> Email / User ID</label>
+        <input type="text" id="userIdVoucher" placeholder="Masukkan email atau user ID">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-coins"></i> Nominal</label>
+        <div class="price-grid" data-target="amountVoucher">
+          <div class="price-tag" data-value="25000">Rp 25K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="200000">Rp 200K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+        </div>
+        <input type="number" id="amountVoucher" placeholder="Nominal manual" min="10000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponVoucher" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn-primary" onclick="confirmTopup('voucher')">
+        <span class="btn-text"><i class="fas fa-ticket"></i> Beli Voucher</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB TRANSFER -->
+  <div class="tab-content" id="tab-transfer">
+    <div class="fade-in delay-4">
+      <div class="form-group">
+        <label><i class="fas fa-university"></i> Pilih Bank</label>
+        <select id="transferBank">
+          <option value="BCA">BCA</option>
+          <option value="Mandiri">Mandiri</option>
+          <option value="BNI">BNI</option>
+          <option value="BRI">BRI</option>
+          <option value="BTN">BTN</option>
+          <option value="CIMB Niaga">CIMB Niaga</option>
+          <option value="Danamon">Danamon</option>
+          <option value="Permata">Permata</option>
+          <option value="OCBC NISP">OCBC NISP</option>
+          <option value="Maybank">Maybank</option>
+          <option value="Panin Bank">Panin Bank</option>
+          <option value="Bank Mega">Bank Mega</option>
+          <option value="Bank BTPN">Bank BTPN</option>
+          <option value="Bank Sinarmas">Bank Sinarmas</option>
+          <option value="Bank Jago">Bank Jago</option>
+          <option value="Bank Neo Commerce">Bank Neo Commerce</option>
+          <option value="Bank Digital BCA">Bank Digital BCA</option>
+          <option value="Bank KEB Hana">Bank KEB Hana</option>
+          <option value="Bank Mizuho">Bank Mizuho</option>
+          <option value="Bank UOB">Bank UOB</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-user"></i> Nomor Rekening / HP</label>
+        <input type="tel" inputmode="numeric" pattern="[0-9]*" id="transferTujuan" placeholder="Masukkan nomor rekening / HP" value="08123456789">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-money-bill"></i> Nominal Transfer</label>
+        <div class="price-grid" data-target="amountTransfer">
+          <div class="price-tag" data-value="10000">Rp 10K</div>
+          <div class="price-tag" data-value="25000">Rp 25K</div>
+          <div class="price-tag" data-value="50000">Rp 50K</div>
+          <div class="price-tag" data-value="100000">Rp 100K</div>
+          <div class="price-tag" data-value="250000">Rp 250K</div>
+          <div class="price-tag" data-value="500000">Rp 500K</div>
+        </div>
+        <input type="number" id="amountTransfer" placeholder="Masukkan nominal" min="10000" style="margin-top:8px;">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-ticket"></i> Kode Kupon</label>
+        <input type="text" id="couponTransfer" placeholder="MASUKAN CODE KUPON" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="form-group">
+        <label><i class="fas fa-pencil-alt"></i> Catatan (opsional)</label>
+        <textarea id="transferNote" placeholder="Catatan transfer..." rows="2"></textarea>
+      </div>
+      <button class="btn-primary" onclick="confirmTransfer()">
+        <span class="btn-text"><i class="fas fa-paper-plane"></i> Kirim Transfer</span>
+        <span class="spinner"></span>
+        <span class="loading-text">Memproses...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB HISTORY -->
+  <div class="tab-content" id="tab-history">
+    <div class="filter-bar">
+      <input type="text" id="searchHistory" placeholder="Cari..." oninput="renderHistory()">
+      <select id="filterType" onchange="renderHistory()">
+        <option value="all">Semua</option>
+        <option value="game">Game</option>
+        <option value="pulsa">Pulsa</option>
+        <option value="data">Data</option>
+        <option value="ewallet">E-Wallet</option>
+        <option value="pln">PLN</option>
+        <option value="voucher">Voucher</option>
+        <option value="transfer">Transfer</option>
+      </select>
+      <button class="btn-filter" onclick="exportCSV()" title="Export CSV"><i class="fas fa-file-export"></i></button>
+      <button class="btn-filter danger" onclick="clearHistory()" title="Hapus semua"><i class="fas fa-trash"></i></button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <!-- TAB STATS -->
+  <div class="tab-content" id="tab-stats">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div class="stat-item" style="padding:14px 10px;"><div class="num blue" id="statsTotalTx">0</div><div class="lbl">Total Transaksi</div></div>
+      <div class="stat-item" style="padding:14px 10px;"><div class="num orange" id="statsTotalSpent">Rp 0</div><div class="lbl">Total Belanja</div></div>
+      <div class="stat-item" style="padding:14px 10px;"><div class="num green" id="statsAvgTx">Rp 0</div><div class="lbl">Rata-rata</div></div>
+      <div class="stat-item" style="padding:14px 10px;"><div class="num" style="color:var(--text-primary);" id="statsMostType">-</div><div class="lbl">Terbanyak</div></div>
+    </div>
+    <div style="background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:14px;">
+      <div style="font-size:0.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;"><i class="fas fa-chart-pie"></i> Kategori</div>
+      <div id="statsCategories" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+
+  <!-- TAB KUPON -->
+  <div class="tab-content" id="tab-coupon">
+    <div class="fade-in delay-4" style="padding:4px 0;">
+      <div style="background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:16px;margin-bottom:12px;">
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;"><i class="fas fa-ticket"></i> Kelola Kupon</div>
+        <div class="form-group">
+          <label>Kode Kupon</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="newCouponCode" placeholder="Nama kupon (contoh: SALL10)" style="flex:1;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()">
+            <select id="couponDiscountType" style="width:80px;">
+              <option value="percent">%</option>
+              <option value="fixed">Rp</option>
+            </select>
+            <input type="number" id="couponDiscountValue" placeholder="Nilai" style="width:80px;" min="1">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="generateCoupon()" style="padding:8px;font-size:0.85rem;">
+          <span class="btn-text"><i class="fas fa-plus-circle"></i> Buat Kupon</span>
+          <span class="spinner"></span>
+          <span class="loading-text">Memproses...</span>
+        </button>
+        <div id="couponList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+      <div style="background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:16px;">
+        <div style="font-size:1.1rem;font-weight:700;margin-bottom:8px;"><i class="fas fa-star"></i> Poin Loyalty</div>
+        <p style="color:var(--text-secondary);font-size:0.85rem;">Dapatkan <strong>1 poin</strong> setiap Rp 1.000 transaksi.</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <span style="font-size:1.2rem;font-weight:700;">Poin: <span id="pointsDisplay2">0</span></span>
+          <button class="btn-primary" onclick="redeemPoints()" style="padding:6px 16px;font-size:0.75rem;width:auto;">
+            <span class="btn-text">Tukar Poin (100 pt = Rp 10.000)</span>
+            <span class="spinner"></span>
+            <span class="loading-text">Memproses...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2026 <strong>VSALL STORE</strong> — Top Up & Voucher Digital</p>
+    <p style="margin-top:3px;font-size:0.6rem;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+      <span>BY SALL</span>
+      <span style="opacity:0.4;">@sall_store</span>
+    </p>
+  </footer>
+</div>
+
+<!-- MODAL KONFIRMASI CUSTOM -->
+<div class="modal-overlay" id="modalConfirm">
+  <div class="modal-box">
+    <h2><i class="fas fa-check-circle" style="color:var(--success);"></i> Konfirmasi Transaksi</h2>
+    <p class="sub">Periksa kembali detail transaksi Anda</p>
+    <div class="confirm-details" id="confirmDetails"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalConfirm')">Batal</button>
+      <button class="btn-confirm" id="btnConfirmOk"><span class="btn-text">Konfirmasi</span><span class="spinner"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-overlay" id="modalLogin">
+  <div class="modal-box">
+    <h2 id="loginModalTitle">Login</h2>
+    <p class="sub" id="loginModalSub">Masuk untuk menyimpan data</p>
+    <div class="form-group"><label><i class="fas fa-user"></i> Username</label><input type="text" id="loginUsername" placeholder="Username" value="admin"></div>
+    <div class="form-group"><label><i class="fas fa-lock"></i> Password</label><input type="password" id="loginPassword" placeholder="Password" value="123"></div>
+    <div style="display:flex;gap:10px;margin-top:4px;font-size:0.75rem;color:var(--text-muted);justify-content:center;flex-wrap:wrap;">
+      <span style="cursor:pointer;" onclick="switchLoginMode()" id="switchLoginMode">Belum punya akun? Register</span>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalLogin')">Batal</button>
+      <button class="btn-confirm" id="btnLoginConfirm"><span class="btn-text">Login</span><span class="spinner"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TOPUP SALDO -->
+<div class="modal-overlay" id="modalTopupSaldo">
+  <div class="modal-box">
+    <h2>Top Up Saldo</h2><p class="sub">Isi saldo untuk memulai transaksi</p>
+    <div class="form-group"><label><i class="fas fa-coins"></i> Nominal</label><input type="number" id="topupAmountInput" placeholder="Min Rp 10.000" min="10000" value="50000"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalTopupSaldo')">Batal</button>
+      <button class="btn-confirm" id="btnTopupSaldoConfirm"><span class="btn-text">Lanjutkan</span><span class="spinner"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL QRIS -->
+<div class="modal-overlay" id="modalQris">
+  <div class="modal-box">
+    <h2><i class="fas fa-qrcode" style="color:#7cb9ff;"></i> Scan QRIS</h2>
+    <p class="sub">Nominal: <strong id="qrisAmount">Rp 0</strong></p>
+    <div class="qris-placeholder"><div id="qrcode"></div></div>
+    <p style="color:var(--text-muted);font-size:0.7rem;text-align:center;margin-bottom:10px;">Scan menggunakan aplikasi e-wallet atau mobile banking</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modalQris')">Batal</button>
+      <button class="btn-confirm" id="btnQrisConfirm"><span class="btn-text">Saya Sudah Bayar</span><span class="spinner"></span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECEIPT (diperbaiki dengan elemen diskon & poin) -->
+<div class="modal-overlay" id="modalReceipt">
+  <div class="receipt" id="receiptContainer">
+    <h2>SALL STORE</h2>
+    <div class="row"><span>ID</span><span id="rID">-</span></div>
+    <div class="row"><span>Tanggal</span><span id="rTanggal">-</span></div>
+    <div class="divider"></div>
+    <div class="row"><span>Produk</span><span id="rProduk">-</span></div>
+    <div class="row"><span>Tujuan</span><span id="rTujuan">-</span></div>
+    <div class="row"><span>Harga</span><span id="rHarga">-</span></div>
+    <div class="row"><span>Diskon</span><span id="rDiskon">-</span></div>
+    <div class="row"><span>Poin Didapat</span><span id="rPoin">-</span></div>
+    <div class="divider"></div>
+    <div class="row"><span>Status</span><span style="color:var(--success);font-weight:700;">SUKSES</span></div>
+    <div class="status">Terima kasih!</div>
+    <div class="actions">
+      <button class="btn-close" onclick="closeModal('modalReceipt')">Tutup</button>
+      <button class="btn-wa" id="btnReceiptWa"><i class="fab fa-whatsapp"></i> WA</button>
+      <button class="btn-download" id="btnReceiptDownload"><i class="fas fa-download"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer">
+  <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMessage">Sukses</span></div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="receiptCanvas" width="360" height="480"></canvas>
+
+<script>
+  // ================================================================
+  //  SPLASH
+  // ================================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    const splash = document.getElementById('splashOverlay');
+    const app = document.getElementById('app');
+    setTimeout(function() {
+      splash.classList.add('hide');
+      app.style.opacity = '1';
+      setTimeout(function() { splash.style.display = 'none'; }, 800);
+    }, 3500);
+  });
+
+  // ================================================================
+  //  STATE
+  // ================================================================
+  let saldo = parseInt(localStorage.getItem('vsall_saldo')) || 1000000;
+  let history = JSON.parse(localStorage.getItem('vsall_history')) || [];
+  let points = parseInt(localStorage.getItem('vsall_points')) || 0;
+  let coupons = JSON.parse(localStorage.getItem('vsall_coupons')) || [];
+  let currentData = null;
+  let isProcessing = false;
+  let tempTopupAmount = 0;
+  let pendingTransaction = null;
+
+  // ================================================================
+  //  AUTH (singkat)
+  // ================================================================
+  let currentUser = null;
+  const USERS_KEY = 'vsall_users';
+  const SESSION_KEY = 'vsall_session';
+  function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '{"admin":"123"}'); }
+  function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+  function login(u, p) {
+    const users = getUsers();
+    if (users[u] && users[u] === p) { currentUser = u; localStorage.setItem(SESSION_KEY, u); updateUserUI(); return true; }
+    return false;
+  }
+  function register(u, p) {
+    const users = getUsers();
+    if (users[u]) return false;
+    users[u] = p; saveUsers(users); return true;
+  }
+  function logout() { currentUser = null; localStorage.removeItem(SESSION_KEY); updateUserUI(); showToast('Logout berhasil','success'); }
+  function checkSession() {
+    const s = localStorage.getItem(SESSION_KEY);
+    const users = getUsers();
+    if (s && users[s]) { currentUser = s; updateUserUI(); return true; }
+    return false;
+  }
+  function updateUserUI() {
+    const nameEl = document.getElementById('usernameDisplay');
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (currentUser) { nameEl.textContent = currentUser; logoutBtn.style.display = 'flex'; document.getElementById('userBadge').style.cursor = 'default'; }
+    else { nameEl.textContent = 'Guest'; logoutBtn.style.display = 'none'; document.getElementById('userBadge').style.cursor = 'pointer'; }
+  }
+  function toggleUserMenu() {
+    if (currentUser) { if (confirm('Logout ' + currentUser + '?')) logout(); }
+    else { document.getElementById('modalLogin').classList.add('show'); document.getElementById('loginModalTitle').textContent = 'Login'; document.getElementById('loginModalSub').textContent = 'Masuk untuk menyimpan data'; document.getElementById('btnLoginConfirm').innerHTML = '<span class="btn-text">Login</span><span class="spinner"></span>'; document.getElementById('switchLoginMode').textContent = 'Belum punya akun? Register'; document.getElementById('loginUsername').value = 'admin'; document.getElementById('loginPassword').value = '123'; isLoginMode = true; }
+  }
+  let isLoginMode = true;
+  function switchLoginMode() {
+    isLoginMode = !isLoginMode;
+    const title = document.getElementById('loginModalTitle');
+    const sub = document.getElementById('loginModalSub');
+    const btn = document.getElementById('btnLoginConfirm');
+    const switchText = document.getElementById('switchLoginMode');
+    if (isLoginMode) {
+      title.textContent = 'Login'; sub.textContent = 'Masuk untuk menyimpan data';
+      btn.innerHTML = '<span class="btn-text">Login</span><span class="spinner"></span>';
+      switchText.textContent = 'Belum punya akun? Register';
+    } else {
+      title.textContent = 'Register'; sub.textContent = 'Buat akun baru';
+      btn.innerHTML = '<span class="btn-text">Register</span><span class="spinner"></span>';
+      switchText.textContent = 'Sudah punya akun? Login';
+    }
+  }
+
+  // ================================================================
+  //  UPDATE UI
+  // ================================================================
+  function updateSaldo() {
+    localStorage.setItem('vsall_saldo', saldo);
+    document.getElementById('saldoDisplay').textContent = saldo.toLocaleString('id-ID');
+    const maxSaldo = 10000000;
+    const pct = Math.min((saldo / maxSaldo) * 100, 100);
+    document.getElementById('saldoFill').style.width = pct + '%';
+    updateStats();
+    updatePoints();
+    updateCouponUI();
+  }
+
+  function updatePoints() {
+    localStorage.setItem('vsall_points', points);
+    document.getElementById('pointsDisplay').textContent = points;
+    document.getElementById('pointsDisplay2').textContent = points;
+  }
+
+  function updateCouponUI() {
+    localStorage.setItem('vsall_coupons', JSON.stringify(coupons));
+    document.getElementById('couponCount').textContent = coupons.length;
+    renderCouponList();
+  }
+
+  function renderCouponList() {
+    const container = document.getElementById('couponList');
+    if (coupons.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;">Belum ada kupon.</div>';
+      return;
+    }
+    container.innerHTML = coupons.map((c, idx) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:8px 12px;">
+        <span><strong>${c.code}</strong> (${c.discountType === 'percent' ? c.discountValue+'%' : 'Rp '+c.discountValue.toLocaleString('id-ID')})</span>
+        <button onclick="deleteCoupon(${idx})" style="background:transparent;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+  }
+
+  // ================================================================
+  //  KUPON — fungsi applyCoupon
+  // ================================================================
+  function applyCoupon(couponCode, amount) {
+    if (!couponCode) return { valid: false, discount: 0, message: '' };
+    if (!/^[A-Z0-9]+$/.test(couponCode)) {
+      return { valid: false, discount: 0, message: 'Kode kupon harus huruf kapital dan angka saja!' };
+    }
+    const found = coupons.find(c => c.code === couponCode);
+    if (found) {
+      let discount = 0;
+      if (found.discountType === 'percent') {
+        discount = Math.floor(amount * (found.discountValue / 100));
+      } else {
+        discount = Math.min(found.discountValue, amount);
+      }
+      return { valid: true, discount, message: 'Diskon ' + (found.discountType === 'percent' ? found.discountValue+'%' : 'Rp '+found.discountValue.toLocaleString('id-ID')) };
+    }
+    // default 10%
+    const discount = Math.floor(amount * 0.1);
+    return { valid: true, discount, message: 'Diskon 10% (kupon otomatis)' };
+  }
+
+  function generateCoupon() {
+    const code = document.getElementById('newCouponCode').value.trim().toUpperCase();
+    const type = document.getElementById('couponDiscountType').value;
+    const value = parseInt(document.getElementById('couponDiscountValue').value);
+    if (!code) { showToast('Masukkan kode kupon','error'); return; }
+    if (!value || value <= 0) { showToast('Masukkan nilai diskon yang valid','error'); return; }
+    if (coupons.find(c => c.code === code)) { showToast('Kode sudah ada','error'); return; }
+    coupons.push({ code, discountType: type, discountValue: value });
+    updateCouponUI();
+    document.getElementById('newCouponCode').value = '';
+    document.getElementById('couponDiscountValue').value = '';
+    showToast('Kupon '+code+' berhasil dibuat!','success');
+  }
+
+  function deleteCoupon(idx) {
+    coupons.splice(idx, 1);
+    updateCouponUI();
+    showToast('Kupon dihapus','success');
+  }
+
+  function redeemPoints() {
+    if (points < 100) { showToast('Minimal 100 poin untuk ditukar','error'); return; }
+    const bonus = 10000;
+    saldo += bonus;
+    points -= 100;
+    updateSaldo();
+    showToast('100 poin ditukar menjadi Rp 10.000','success');
+  }
+
+  // ================================================================
+  //  TOAST
+  // ================================================================
+  function showToast(msg, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    toast.className = 'toast ' + type;
+    toastMessage.textContent = msg;
+    const icon = toast.querySelector('i');
+    icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+    clearTimeout(toast._timer);
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2800);
+    playSound(type === 'success' ? 'success' : 'error');
+  }
+
+  let audioCtx = null;
+  function playSound(type) {
+    try {
+      if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      gain.gain.value = 0.08;
+      if (type === 'success') {
+        osc.frequency.value = 800; osc.type = 'sine'; osc.start();
+        setTimeout(() => { osc.frequency.value = 1200; }, 100);
+        setTimeout(() => { osc.stop(); }, 250);
+      } else {
+        osc.frequency.value = 300; osc.type = 'sawtooth'; osc.start();
+        setTimeout(() => { osc.stop(); }, 200);
+      }
+    } catch (_) {}
+  }
+
+  // ================================================================
+  //  TABS
+  // ================================================================
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+      if (this.dataset.tab === 'history') renderHistory();
+      if (this.dataset.tab === 'stats') renderStats();
+      if (this.dataset.tab === 'transfer') bindPriceTags();
+      if (this.dataset.tab === 'coupon') renderCouponList();
+    });
+  });
+
+  document.querySelectorAll('.sub-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.sub-content').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('sub-' + this.dataset.sub).classList.add('active');
+      bindPriceTags();
+    });
+  });
+
+  function bindPriceTags() {
+    document.querySelectorAll('.price-grid').forEach(grid => {
+      grid.querySelectorAll('.price-tag').forEach(tag => {
+        tag.onclick = function() {
+          const grid = this.closest('.price-grid');
+          grid.querySelectorAll('.price-tag').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          const targetId = grid.dataset.target;
+          const input = document.getElementById(targetId);
+          if (input) input.value = this.dataset.value;
+          if (navigator.vibrate) navigator.vibrate(10);
+        };
+      });
+    });
+  }
+  bindPriceTags();
+
+  function validatePhone(num) { return /^(08|62)[0-9]{8,11}$/.test(num); }
+  ['Pulsa','Data'].forEach(type => {
+    const input = document.getElementById('userId' + type);
+    if (input) {
+      input.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        const error = document.getElementById('error' + type);
+        if (error) error.style.display = (this.value && !validatePhone(this.value) && this.value.length > 9) ? 'block' : 'none';
+      });
+    }
+  });
+
+  // ================================================================
+  //  KONFIRMASI — TOPUP
+  // ================================================================
+  function confirmTopup(type) {
+    if (isProcessing) return;
+    let userid, productName, amount, finalAmount;
+    const typeMap = {
+      game: { select: 'gameSelect', input: 'userIdGame', amount: 'amountGame', coupon: 'couponGame' },
+      pulsa: { select: 'operatorPulsa', input: 'userIdPulsa', amount: 'amountPulsa', coupon: 'couponPulsa' },
+      data: { select: 'operatorData', input: 'userIdData', amount: 'amountData', coupon: 'couponData' },
+      ewallet: { select: 'operatorEwallet', input: 'userIdEwallet', amount: 'amountEwallet', coupon: 'couponEwallet' },
+      pln: { select: null, input: 'userIdPln', amount: 'amountPln', coupon: 'couponPln' },
+      voucher: { select: 'voucherSelect', input: 'userIdVoucher', amount: 'amountVoucher', coupon: 'couponVoucher' }
+    };
+    const cfg = typeMap[type];
+    if (!cfg) return;
+
+    if (type === 'game') productName = document.getElementById('gameSelect').value;
+    else if (type === 'voucher') productName = document.getElementById('voucherSelect').value;
+    else if (type === 'pln') productName = 'Token PLN';
+    else productName = document.getElementById(cfg.select).value;
+
+    userid = document.getElementById(cfg.input).value.trim();
+    amount = parseInt(document.getElementById(cfg.amount).value);
+    const couponCode = document.getElementById(cfg.coupon).value.trim().toUpperCase();
+
+    if (!productName) { showToast('Pilih produk terlebih dahulu!','error'); return; }
+    if (!userid) { showToast('Masukkan ID / nomor tujuan!','error'); return; }
+    if (!amount || amount < 5000) { showToast('Minimal Rp 5.000','error'); return; }
+    if ((type === 'pulsa' || type === 'data') && userid.length > 9 && !validatePhone(userid)) { showToast('Format nomor tidak valid!','error'); return; }
+
+    let discount = 0;
+    let discountMsg = '';
+    if (couponCode) {
+      const result = applyCoupon(couponCode, amount);
+      if (!result.valid) {
+        showToast(result.message, 'error');
+        return;
+      }
+      discount = result.discount;
+      discountMsg = 'Diskon: ' + result.message;
+    }
+
+    finalAmount = amount + 500 - discount;
+    if (finalAmount < 0) finalAmount = 0;
+    if (finalAmount > saldo) { showToast('Saldo tidak cukup!','error'); return; }
+
+    pendingTransaction = {
+      type: 'topup',
+      productName: productName,
+      userid: userid,
+      amount: amount,
+      finalAmount: finalAmount,
+      discount: discount,
+      couponCode: couponCode || '-',
+      typeCategory: type,
+      cfg: cfg
+    };
+
+    const details = document.getElementById('confirmDetails');
+    details.innerHTML = `
+      <div><span class="label">Produk</span><div class="value">${productName}</div></div>
+      <div class="divider"></div>
+      <div><span class="label">Tujuan</span><div class="value">${userid}</div></div>
+      <div class="divider"></div>
+      <div><span class="label">Nominal</span><div class="value">Rp ${amount.toLocaleString('id-ID')}</div></div>
+      ${discount > 0 ? `<div><span class="label">Diskon</span><div class="value" style="color:var(--success);">- Rp ${discount.toLocaleString('id-ID')}</div></div>` : ''}
+      <div class="divider"></div>
+      <div><span class="label">Total Dibayar</span><div class="value" style="font-size:1.1rem;color:var(--primary-light);">Rp ${finalAmount.toLocaleString('id-ID')}</div></div>
+      ${couponCode ? `<div><span class="label">Kupon</span><div class="value">${couponCode}</div></div>` : ''}
+    `;
+    document.getElementById('modalConfirm').classList.add('show');
+
+    document.getElementById('btnConfirmOk').onclick = function() {
+      closeModal('modalConfirm');
+      executeTopup(type);
+    };
+  }
+
+  function executeTopup(type) {
+    if (!pendingTransaction) return;
+    const p = pendingTransaction;
+    isProcessing = true;
+    const btn = document.querySelector(`#sub-${type} .btn-primary`);
+    btn.disabled = true; btn.classList.add('loading');
+
+    setTimeout(() => {
+      try {
+        saldo -= p.finalAmount;
+        const earnedPoints = Math.floor(p.amount / 1000);
+        points += earnedPoints;
+        updateSaldo();
+
+        currentData = {
+          id: 'TRX' + Date.now(),
+          tanggal: new Date().toLocaleString('id-ID'),
+          produk: p.productName,
+          tujuan: p.userid,
+          nominal: p.amount,
+          harga: p.finalAmount,
+          diskon: p.discount,
+          poin: earnedPoints,
+          type: p.typeCategory,
+          coupon: p.couponCode || '-'
+        };
+        history.unshift(currentData);
+        localStorage.setItem('vsall_history', JSON.stringify(history));
+
+        // Perbaikan: set elemen receipt
+        document.getElementById('rID').textContent = currentData.id;
+        document.getElementById('rTanggal').textContent = currentData.tanggal;
+        document.getElementById('rProduk').textContent = currentData.produk;
+        document.getElementById('rTujuan').textContent = currentData.tujuan;
+        document.getElementById('rHarga').textContent = 'Rp ' + currentData.harga.toLocaleString('id-ID');
+        document.getElementById('rDiskon').textContent = p.discount > 0 ? 'Rp ' + p.discount.toLocaleString('id-ID') : '-';
+        document.getElementById('rPoin').textContent = '+' + earnedPoints + ' poin';
+        document.getElementById('modalReceipt').classList.add('show');
+
+        showToast('Transaksi berhasil! +' + earnedPoints + ' poin','success');
+
+        const form = document.getElementById('sub-' + type);
+        form.querySelectorAll('input').forEach(inp => inp.value = '');
+        form.querySelectorAll('.price-tag').forEach(t => t.classList.remove('active'));
+        if (type === 'game') document.getElementById('gameSelect').value = '';
+        else if (type === 'voucher') document.getElementById('voucherSelect').value = '';
+        else if (type !== 'pln') document.getElementById(p.cfg.select).value = '';
+
+        updateDatalist(); renderStats();
+        pendingTransaction = null;
+      } catch (e) { showToast('Error: ' + e.message,'error'); }
+      finally { btn.disabled = false; btn.classList.remove('loading'); isProcessing = false; }
+    }, 700);
+  }
+
+  // ================================================================
+  //  KONFIRMASI — TRANSFER
+  // ================================================================
+  function confirmTransfer() {
+    if (isProcessing) return;
+    const bank = document.getElementById('transferBank').value;
+    const tujuan = document.getElementById('transferTujuan').value.trim();
+    const amount = parseInt(document.getElementById('amountTransfer').value);
+    const note = document.getElementById('transferNote').value.trim();
+    const couponCode = document.getElementById('couponTransfer').value.trim().toUpperCase();
+
+    if (!tujuan) { showToast('Masukkan nomor rekening / tujuan!','error'); return; }
+    if (!amount || amount < 10000) { showToast('Minimal transfer Rp 10.000','error'); return; }
+
+    let discount = 0;
+    let discountMsg = '';
+    if (couponCode) {
+      const result = applyCoupon(couponCode, amount);
+      if (!result.valid) {
+        showToast(result.message, 'error');
+        return;
+      }
+      discount = result.discount;
+      discountMsg = 'Diskon: ' + result.message;
+    }
+    const finalAmount = amount - discount;
+    if (finalAmount < 0) { showToast('Diskon melebihi nominal transfer','error'); return; }
+    if (finalAmount > saldo) { showToast('Saldo tidak cukup!','error'); return; }
+
+    pendingTransaction = {
+      type: 'transfer',
+      bank: bank,
+      tujuan: tujuan,
+      amount: amount,
+      finalAmount: finalAmount,
+      discount: discount,
+      note: note || '-',
+      couponCode: couponCode || '-'
+    };
+
+    const details = document.getElementById('confirmDetails');
+    details.innerHTML = `
+      <div><span class="label">Bank</span><div class="value">${bank}</div></div>
+      <div class="divider"></div>
+      <div><span class="label">Tujuan</span><div class="value">${tujuan}</div></div>
+      <div class="divider"></div>
+      <div><span class="label">Nominal</span><div class="value">Rp ${amount.toLocaleString('id-ID')}</div></div>
+      ${discount > 0 ? `<div><span class="label">Diskon</span><div class="value" style="color:var(--success);">- Rp ${discount.toLocaleString('id-ID')}</div></div>` : ''}
+      <div class="divider"></div>
+      <div><span class="label">Total Dibayar</span><div class="value" style="font-size:1.1rem;color:var(--primary-light);">Rp ${finalAmount.toLocaleString('id-ID')}</div></div>
+      ${note ? `<div><span class="label">Catatan</span><div class="value">${note}</div></div>` : ''}
+      ${couponCode ? `<div><span class="label">Kupon</span><div class="value">${couponCode}</div></div>` : ''}
+    `;
+    document.getElementById('modalConfirm').classList.add('show');
+
+    document.getElementById('btnConfirmOk').onclick = function() {
+      closeModal('modalConfirm');
+      executeTransfer();
+    };
+  }
+
+  function executeTransfer() {
+    if (!pendingTransaction || pendingTransaction.type !== 'transfer') return;
+    const p = pendingTransaction;
+    isProcessing = true;
+    const btn = document.querySelector('#tab-transfer .btn-primary');
+    btn.disabled = true; btn.classList.add('loading');
+
+    setTimeout(() => {
+      try {
+        saldo -= p.finalAmount;
+        const earnedPoints = Math.floor(p.amount / 1000);
+        points += earnedPoints;
+        updateSaldo();
+
+        currentData = {
+          id: 'TRF' + Date.now(),
+          tanggal: new Date().toLocaleString('id-ID'),
+          produk: 'Transfer ke ' + p.bank,
+          tujuan: p.tujuan,
+          nominal: p.amount,
+          harga: p.finalAmount,
+          diskon: p.discount,
+          poin: earnedPoints,
+          type: 'transfer',
+          note: p.note,
+          coupon: p.couponCode || '-'
+        };
+        history.unshift(currentData);
+        localStorage.setItem('vsall_history', JSON.stringify(history));
+
+        document.getElementById('rID').textContent = currentData.id;
+        document.getElementById('rTanggal').textContent = currentData.tanggal;
+        document.getElementById('rProduk').textContent = currentData.produk + (p.note ? ' ('+p.note+')' : '');
+        document.getElementById('rTujuan').textContent = currentData.tujuan;
+        document.getElementById('rHarga').textContent = 'Rp ' + currentData.harga.toLocaleString('id-ID');
+        document.getElementById('rDiskon').textContent = p.discount > 0 ? 'Rp ' + p.discount.toLocaleString('id-ID') : '-';
+        document.getElementById('rPoin').textContent = '+' + earnedPoints + ' poin';
+        document.getElementById('modalReceipt').classList.add('show');
+
+        showToast('Transfer berhasil! +' + earnedPoints + ' poin','success');
+        document.getElementById('transferTujuan').value = '';
+        document.getElementById('amountTransfer').value = '';
+        document.getElementById('transferNote').value = '';
+        document.getElementById('couponTransfer').value = '';
+        document.querySelectorAll('#tab-transfer .price-tag').forEach(t => t.classList.remove('active'));
+        updateDatalist(); renderStats();
+        pendingTransaction = null;
+      } catch (e) { showToast('Error: ' + e.message,'error'); }
+      finally { btn.disabled = false; btn.classList.remove('loading'); isProcessing = false; }
+    }, 700);
+  }
+
+  // ================================================================
+  //  HISTORY, STATS, dll
+  // ================================================================
+  function renderHistory() {
+    const search = document.getElementById('searchHistory').value.toLowerCase();
+    const filter = document.getElementById('filterType').value;
+    let filtered = history.filter(h => {
+      const matchType = filter === 'all' || h.type === filter;
+      const matchSearch = h.produk.toLowerCase().includes(search) || h.tujuan.toLowerCase().includes(search);
+      return matchType && matchSearch;
+    });
+    const list = document.getElementById('historyList');
+    if (filtered.length === 0) {
+      list.innerHTML = `<div class="empty-state"><i class="fas fa-inbox"></i><p>Tidak ada transaksi</p></div>`;
+      return;
+    }
+    const frag = document.createDocumentFragment();
+    filtered.forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      div.setAttribute('onclick', `viewReceipt('${h.id}')`);
+      div.innerHTML = `
+        <div class="hdr"><strong>${h.produk}</strong><span class="badge-status">${h.type.toUpperCase()}</span></div>
+        <div class="meta"><span><i class="fas fa-clock"></i> ${h.tanggal}</span><span><i class="fas fa-money-bill"></i> Rp ${h.harga.toLocaleString('id-ID')}</span><span><i class="fas fa-user"></i> ${h.tujuan}</span></div>
+      `;
+      frag.appendChild(div);
+    });
+    list.innerHTML = '';
+    list.appendChild(frag);
+  }
+
+  function viewReceipt(id) {
+    currentData = history.find(h => h.id === id);
+    if (!currentData) return;
+    document.getElementById('rID').textContent = currentData.id;
+    document.getElementById('rTanggal').textContent = currentData.tanggal;
+    document.getElementById('rProduk').textContent = currentData.produk + (currentData.note ? ' ('+currentData.note+')' : '');
+    document.getElementById('rTujuan').textContent = currentData.tujuan;
+    document.getElementById('rHarga').textContent = 'Rp ' + currentData.harga.toLocaleString('id-ID');
+    document.getElementById('rDiskon').textContent = currentData.diskon > 0 ? 'Rp ' + currentData.diskon.toLocaleString('id-ID') : '-';
+    document.getElementById('rPoin').textContent = '+' + (currentData.poin || 0) + ' poin';
+    document.getElementById('modalReceipt').classList.add('show');
+  }
+
+  function clearHistory() {
+    if (history.length === 0) { showToast('Tidak ada data','error'); return; }
+    if (confirm('Hapus semua riwayat?')) {
+      history = []; localStorage.setItem('vsall_history', JSON.stringify(history));
+      renderHistory(); renderStats(); showToast('Riwayat dihapus','error');
+    }
+  }
+
+  function exportCSV() {
+    if (history.length === 0) { showToast('Tidak ada data','error'); return; }
+    let csv = 'ID,Tanggal,Produk,Tujuan,Nominal,Harga,Diskon,Poin,Type\n';
+    history.forEach(h => { csv += `${h.id},${h.tanggal},${h.produk},${h.tujuan},${h.nominal},${h.harga},${h.diskon||0},${h.poin||0},${h.type}\n`; });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'VSALL_History.csv';
+    link.click();
+    showToast('CSV terdownload!','success');
+  }
+
+  function updateDatalist() {
+    const targets = history.map(h => h.tujuan).filter(Boolean);
+    document.getElementById('historyGameList').innerHTML = targets.map(t => `<option value="${t}">`).join('');
+  }
+  updateDatalist();
+
+  function updateStats() {
+    const totalTx = history.length;
+    const totalSpent = history.reduce((sum, h) => sum + h.harga, 0);
+    const avg = totalTx > 0 ? Math.round(totalSpent / totalTx) : 0;
+    document.getElementById('statTotal').textContent = totalTx;
+    document.getElementById('statSpent').textContent = 'Rp ' + totalSpent.toLocaleString('id-ID');
+    document.getElementById('statAvg').textContent = 'Rp ' + avg.toLocaleString('id-ID');
+  }
+
+  function renderStats() {
+    const totalTx = history.length;
+    const totalSpent = history.reduce((sum, h) => sum + h.harga, 0);
+    const avg = totalTx > 0 ? Math.round(totalSpent / totalTx) : 0;
+    document.getElementById('statsTotalTx').textContent = totalTx;
+    document.getElementById('statsTotalSpent').textContent = 'Rp ' + totalSpent.toLocaleString('id-ID');
+    document.getElementById('statsAvgTx').textContent = 'Rp ' + avg.toLocaleString('id-ID');
+
+    const typeCount = {};
+    history.forEach(h => { typeCount[h.type] = (typeCount[h.type] || 0) + 1; });
+    let mostType = '-', mostCount = 0;
+    const typeLabels = { game: 'Game', pulsa: 'Pulsa', data: 'Data', ewallet: 'E-Wallet', pln: 'PLN', voucher: 'Voucher', transfer: 'Transfer' };
+    for (const [t, c] of Object.entries(typeCount)) { if (c > mostCount) { mostCount = c; mostType = typeLabels[t] || t; } }
+    document.getElementById('statsMostType').textContent = mostType;
+
+    const catContainer = document.getElementById('statsCategories');
+    if (history.length === 0) { catContainer.innerHTML = '<div style="color:var(--text-muted);font-size:0.8rem;text-align:center;padding:10px 0;">Belum ada data</div>'; return; }
+    const catMap = {};
+    history.forEach(h => { const key = typeLabels[h.type] || h.type; catMap[key] = (catMap[key] || 0) + h.harga; });
+    const total = Object.values(catMap).reduce((a, b) => a + b, 0);
+    catContainer.innerHTML = Object.entries(catMap).sort((a, b) => b[1] - a[1]).map(([label, val]) => {
+      const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+      return `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:0.75rem;min-width:80px;color:var(--text-secondary);">${label}</span><div style="flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:var(--accent-grad);border-radius:6px;transition:width 0.6s var(--ease-smooth);"></div></div><span style="font-size:0.7rem;font-weight:600;min-width:50px;text-align:right;">${pct}%</span></div>`;
+    }).join('');
+  }
+
+  // ================================================================
+  //  TOPUP SALDO (QRIS)
+  // ================================================================
+  document.getElementById('openTopupSaldo').addEventListener('click', function() {
+    document.getElementById('modalTopupSaldo').classList.add('show');
+  });
+
+  document.getElementById('btnTopupSaldoConfirm').addEventListener('click', function() {
+    const amount = parseInt(document.getElementById('topupAmountInput').value);
+    if (!amount || amount < 10000) { showToast('Minimal Rp 10.000','error'); return; }
+    tempTopupAmount = amount;
+    document.getElementById('qrisAmount').textContent = 'Rp ' + tempTopupAmount.toLocaleString('id-ID');
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    const qrData = `VSALLSTORE|TOPUP|${tempTopupAmount}|${Date.now()}`;
+    new QRCode(qrContainer, {
+      text: qrData,
+      width: 150,
+      height: 150,
+      colorDark: '#0b1120',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+    closeModal('modalTopupSaldo');
+    document.getElementById('modalQris').classList.add('show');
+  });
+
+  document.getElementById('btnQrisConfirm').addEventListener('click', function() {
+    if (isProcessing) return;
+    isProcessing = true; this.disabled = true; this.classList.add('loading');
+    setTimeout(() => {
+      saldo += tempTopupAmount;
+      const earnedPoints = Math.floor(tempTopupAmount / 1000);
+      points += earnedPoints;
+      updateSaldo();
+      showToast('Saldo berhasil ditambah Rp ' + tempTopupAmount.toLocaleString('id-ID') + ' (+' + earnedPoints + ' poin)','success');
+      closeModal('modalQris');
+      document.getElementById('topupAmountInput').value = '';
+      tempTopupAmount = 0;
+      this.disabled = false; this.classList.remove('loading');
+      isProcessing = false;
+    }, 800);
+  });
+
+  // ================================================================
+  //  OPEN HISTORY TAB
+  // ================================================================
+  document.getElementById('openHistoryTab').addEventListener('click', function() {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelector('.nav-tab[data-tab="history"]').classList.add('active');
+    document.getElementById('tab-history').classList.add('active');
+    renderHistory();
+  });
+
+  // ================================================================
+  //  RECEIPT ACTIONS
+  // ================================================================
+  document.getElementById('btnReceiptWa').addEventListener('click', function() {
+    if (!currentData) return;
+    const canvas = document.getElementById('receiptCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 360, 480);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 360, 480);
+    ctx.fillStyle = '#0b1120'; ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('VSALL STORE', 180, 40);
+    ctx.font = '14px Courier New'; ctx.textAlign = 'left';
+    let y = 80;
+    const rows = [
+      ['ID', currentData.id],
+      ['Tanggal', currentData.tanggal],
+      ['Produk', currentData.produk],
+      ['Tujuan', currentData.tujuan],
+      ['Harga', 'Rp ' + currentData.harga.toLocaleString('id-ID')],
+      ['Diskon', currentData.diskon > 0 ? 'Rp ' + currentData.diskon.toLocaleString('id-ID') : '-'],
+      ['Poin', '+' + (currentData.poin || 0)],
+      ['Status', 'SUKSES']
+    ];
+    rows.forEach((row, i) => {
+      ctx.fillText(row[0], 20, y); ctx.textAlign = 'right'; ctx.fillText(row[1], 340, y); ctx.textAlign = 'left';
+      y += 30;
+      if (i === 1 || i === 4) { ctx.setLineDash([4,4]); ctx.strokeStyle = '#ccc'; ctx.beginPath(); ctx.moveTo(20, y - 10); ctx.lineTo(340, y - 10); ctx.stroke(); ctx.setLineDash([]); y += 6; }
+    });
+    ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillStyle = '#10b981';
+    ctx.fillText('Terima kasih!', 180, y + 20);
+
+    try {
+      const link = document.createElement('a');
+      link.download = 'SALL-Struk-' + currentData.id + '.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast('📸 Gambar struk diunduh, buka WA dan kirim gambar', 'success');
+      const text = `Struk SALL STORE%0AID: ${currentData.id}%0ATanggal: ${currentData.tanggal}%0AProduk: ${currentData.produk}%0ATujuan: ${currentData.tujuan}%0AHarga: Rp ${currentData.harga.toLocaleString('id-ID')}%0ADiskon: ${currentData.diskon > 0 ? 'Rp '+currentData.diskon.toLocaleString('id-ID') : '-'}%0APoin: +${currentData.poin||0}%0AStatus: SUKSES`;
+      setTimeout(() => {
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+      }, 300);
+    } catch (e) {
+      showToast('Gagal mengunduh gambar', 'error');
+    }
+  });
+
+  document.getElementById('btnReceiptDownload').addEventListener('click', function() {
+    if (!currentData) return;
+    const canvas = document.getElementById('receiptCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 360, 480);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, 360, 480);
+    ctx.fillStyle = '#0b1120'; ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'center';
+    ctx.fillText('SALL STORE', 180, 40);
+    ctx.font = '14px Courier New'; ctx.textAlign = 'left';
+    let y = 80;
+    const rows = [['ID', currentData.id], ['Tanggal', currentData.tanggal], ['Produk', currentData.produk], ['Tujuan', currentData.tujuan], ['Harga', 'Rp ' + currentData.harga.toLocaleString('id-ID')], ['Diskon', currentData.diskon > 0 ? 'Rp ' + currentData.diskon.toLocaleString('id-ID') : '-'], ['Poin', '+' + (currentData.poin || 0)], ['Status', 'SUKSES']];
+    rows.forEach((row, i) => {
+      ctx.fillText(row[0], 20, y); ctx.textAlign = 'right'; ctx.fillText(row[1], 340, y); ctx.textAlign = 'left';
+      y += 30;
+      if (i === 1 || i === 4) { ctx.setLineDash([4,4]); ctx.strokeStyle = '#ccc'; ctx.beginPath(); ctx.moveTo(20, y - 10); ctx.lineTo(340, y - 10); ctx.stroke(); ctx.setLineDash([]); y += 6; }
+    });
+    ctx.textAlign = 'center'; ctx.font = 'bold 16px Courier New'; ctx.fillStyle = '#10b981';
+    ctx.fillText('Terima kasih!', 180, y + 20);
+    const link = document.createElement('a');
+    link.download = 'SALL-Struk-' + currentData.id + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Gambar struk diunduh', 'success');
+  });
+
+  // ================================================================
+  //  MODAL HELPERS
+  // ================================================================
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('show'); });
+  });
+
+  // ================================================================
+  //  LOGIN
+  // ================================================================
+  document.getElementById('btnLoginConfirm').addEventListener('click', function() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    if (!username || !password) { showToast('Isi username dan password','error'); return; }
+    if (isLoginMode) {
+      if (login(username, password)) { closeModal('modalLogin'); showToast('Login berhasil! Selamat datang ' + username,'success'); }
+      else { showToast('Username atau password salah','error'); }
+    } else {
+      if (register(username, password)) {
+        showToast('Registrasi berhasil! Silakan login.','success');
+        isLoginMode = true; switchLoginMode();
+        document.getElementById('loginUsername').value = username;
+        document.getElementById('loginPassword').value = '';
+      } else { showToast('Username sudah terdaftar','error'); }
+    }
+  });
+
+  // ================================================================
+  //  INIT
+  // ================================================================
+  checkSession();
+  renderHistory();
+  updateSaldo();
+  renderStats();
+  updateCouponUI();
+
+  console.log('✅ VSALL STORE — Error fixed, placeholder diubah menjadi "MASUKAN CODE KUPON"');
+</script>
+
+</body>
+</html>
